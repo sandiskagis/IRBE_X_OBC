@@ -1,0 +1,9 @@
+../Modules/MPU6050/MPU6050_Lib.c:17:19:MPU6050_Init	40	static
+../Modules/MPU6050/MPU6050_Lib.c:62:19:MPU6050_read_ID	32	static
+../Modules/MPU6050/MPU6050_Lib.c:69:19:MPU6050_read_All	48	static
+../Modules/MPU6050/MPU6050_Lib.c:92:19:MPU6050_read_Accel	40	static
+../Modules/MPU6050/MPU6050_Lib.c:109:19:MPU6050_read_Temp	40	static
+../Modules/MPU6050/MPU6050_Lib.c:123:19:MPU6050_read_Gyro	40	static
+../Modules/MPU6050/MPU6050_Lib.c:141:6:MPU6050_Accel_double	16	static
+../Modules/MPU6050/MPU6050_Lib.c:148:6:MPU6050_Temp_double	16	static
+../Modules/MPU6050/MPU6050_Lib.c:153:6:MPU6050_Gyro_double	16	static
