@@ -296,7 +296,7 @@ int main(void)
 
 
 
-  	QMC_init(&QMC_Data, &hi2c2, 200);
+  	QMC_init(&QMC_Data, &hi2c1, 200);
 
 
 
