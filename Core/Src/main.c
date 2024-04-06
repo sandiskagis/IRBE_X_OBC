@@ -195,15 +195,23 @@ float Compas_Value; //2.library
 
 
 
-/*
+
 void Get_QMC5883_all_readings()
 {
-//	Sensors.QMC5883.Status = QMC_read(&Sensors.QMC5883.ID);
-	//QMC_read(&QMC_Data);
-	QMC_readHeading(&QMC_Data);
+
+	if(QMC_read(&QMC_Data)==0)
+	{
+		//HAL_GPIO_WritePin(Led_GPIO_Port, Led_Pin, GPIO_PIN_SET);
+		Compas_Value=QMC_Data.heading;
+	}
+	else
+	{
+		//HAL_GPIO_WritePin(Led_GPIO_Port, Led_Pin, GPIO_PIN_RESET);
+	}
+	//HAL_Delay(50);
+	HAL_Delay(I2C_long_timeout);
 
 }
-*/ //1.library
 
 
 
@@ -296,7 +304,7 @@ int main(void)
 
 
 
-  	QMC_init(&QMC_Data, &hi2c1, 200);
+  	Sensors.QMC5883.Status = QMC_init(&QMC_Data, &hi2c1, 200);
 
 
 
@@ -315,37 +323,13 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 
-
-	/*
-	//heading = QMC_readHeading(&QMC_Data);
-	//QMC_readHeading(&QMC_Data);
-	//QMC_read(&QMC_Data);
-	*/ //1.library
-
-
-
-
-	  if(QMC_read(&QMC_Data)==0)
-	  	{
-	  		//HAL_GPIO_WritePin(Led_GPIO_Port, Led_Pin, GPIO_PIN_SET);
-	  		Compas_Value=QMC_Data.heading;
-	  	}
-	  	else
-	  	{
-	  		//HAL_GPIO_WritePin(Led_GPIO_Port, Led_Pin, GPIO_PIN_RESET);
-	  	}
-	  	HAL_Delay(50);
-
-
-
-
 	switch(SM.state){
 		case SM_STATE_READ_SENSORS:
 			if(tim3Flag == 1){
 				Get_BME280_in_all_readings();
 				//Get_BME280_ex_all_readings();
 	  	  		Get_MPU6050_all_readings();
-	  	  		//Get_QMC5883_all_readings();
+	  	  		Get_QMC5883_all_readings();
 	  	  		//QMC_read(&QMC_Data);
 
 	  	  		HAL_RTC_GetTime(&hrtc, &systemRTCTime, RTC_FORMAT_BIN);

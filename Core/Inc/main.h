@@ -64,9 +64,11 @@ typedef struct QMC5883_struct
 {
 	HAL_StatusTypeDef Status;
 	uint8_t ID;
-	double Field_X;
-	double Field_Y;
-	double Field_Z;
+	double Xaxis;
+	double Yaxis;
+	double Zaxis;
+	float heading;
+	float compass;
 	//double Temperature;
 } QMC5883_struct;
 
