@@ -95,6 +95,9 @@ uint8_t Rx_command3[2] = {0};
 
 float heading;
 
+
+char rx_buffer[1]; // Buffer to store received characters
+
 typedef struct
 {
 	volatile FRESULT mount;				// To store return status code
@@ -866,8 +869,62 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 }
 
+
+
+
+
+// Function to convert double to string
+char* doubleToString(double value) {
+    static char buffer[20];
+    snprintf(buffer, 20, "%.2f", value); // Adjust precision as needed
+    return buffer;
+}
+
+
+
+
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+
+
+
+
+	if (huart == &huart1) {
+	        // Handle received data (if needed)
+	        // Here, we're simply sending back "OK"
+	        HAL_UART_Transmit(&huart1, (uint8_t *)"OK", strlen("OK"), HAL_MAX_DELAY);
+
+	        // Start receiving again to wait for the next message
+	        HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, 1);
+	}
+
+
+
+
+
+
+//	if (huart->Instance == USART1) {
+//		// Check if the received command is "<ENI>"
+//		if (strncmp((char*)huart->pRxBuffPtr, "<ENI>", 5) == 0) {
+//			// Construct the string with sensor data
+//			char dataString[100];
+//			//BME280_struct sensorData; // Assuming sensorData is initialized elsewhere
+//			sprintf(dataString, "<%s,%s,%s>", doubleToString(Sensors.BME280_Internal.Temperature),
+//	                                              doubleToString(Sensors.BME280_Internal.Pressure),
+//	                                              doubleToString(Sensors.BME280_Internal.Humidity));
+//
+//			// Transmit the string through UART1
+//			HAL_UART_Transmit(&huart1, (uint8_t*)dataString, strlen(dataString), HAL_MAX_DELAY);
+//	        }
+//	    }
+
+
+
+
+
+
+	/*
 	if (huart == &huart1)
 	{
 		myCnt[2]++;
@@ -888,6 +945,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_15);
 				}
 	}
+	*/
 
 }
 
