@@ -62,6 +62,7 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 Sensors_struct Sensors;
+uint8_t USART1_RxBuffer [6];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,6 +93,7 @@ char buffer [100];
 char Data_to_send[50];
 uint8_t Rx_command1[2] = {0};
 uint8_t Rx_command3[2] = {0};
+char tx_data[] = "hello";
 
 float heading;
 
@@ -217,6 +219,19 @@ void Get_QMC5883_all_readings()
 }
 
 
+// Function to clear the buffer
+void ClearBuffer(uint8_t *buffer, uint16_t size) {
+    for (uint16_t i = 0; i < size; i++) {
+        buffer[i] = '\0';
+    }
+}
+
+// Make sure to call this function to start the first reception
+void StartReception()
+{
+    ClearBuffer(USART1_RxBuffer, 6);
+    HAL_UART_Receive_IT(&huart1, USART1_RxBuffer, 5);
+}
 
 
 
@@ -313,8 +328,9 @@ int main(void)
 
   	Data = MY_SDCard_SetUp();
   	HAL_TIM_Base_Start_IT(&htim3);
-  	HAL_UART_Receive_IT(&huart1, Rx_command1, 1);
-  	HAL_UART_Receive_IT(&huart3, Rx_command3, 1);
+  	//HAL_UART_Receive_IT(&huart1, USART1_RxBuffer, 10);
+  	//HAL_UART_Receive_IT(&huart3, Rx_command3, 1);
+  	StartReception();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -326,6 +342,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 
+
 	switch(SM.state){
 		case SM_STATE_READ_SENSORS:
 			if(tim3Flag == 1){
@@ -334,6 +351,8 @@ int main(void)
 	  	  		Get_MPU6050_all_readings();
 	  	  		Get_QMC5883_all_readings();
 	  	  		//QMC_read(&QMC_Data);
+
+	  	  		//HAL_UART_Transmit(&huart1, (uint8_t *)tx_data, strlen(tx_data), HAL_MAX_DELAY);
 
 	  	  		HAL_RTC_GetTime(&hrtc, &systemRTCTime, RTC_FORMAT_BIN);
 	  	  		HAL_RTC_GetDate(&hrtc, &systemRTCDate, RTC_FORMAT_BIN);
@@ -355,7 +374,8 @@ int main(void)
 	  	  		 Data.statusSync = f_sync(&fil);
 	  	  		 myCnt[1]++;
 	  	  		 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_12);
-	  	  		 SM.nextState= SM_STATE_SEND_DATA_TO_COM;
+	  	  		 //SM.nextState= SM_STATE_SEND_DATA_TO_COM;
+	  	  		 SM.nextState= SM_STATE_READ_SENSORS;
 	  	  		 SM.state = SM.nextState;
 	  	  		 break;
 	  	  	  }
@@ -884,21 +904,113 @@ char* doubleToString(double value) {
 
 
 
+
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 
 
 
 
-	if (huart == &huart1) {
-	        // Handle received data (if needed)
-	        // Here, we're simply sending back "OK"
-	        HAL_UART_Transmit(&huart1, (uint8_t *)"OK", strlen("OK"), HAL_MAX_DELAY);
+//	if (huart == &huart1) {
+//	        // Handle received data (if needed)
+//	        // Here, we're simply sending back "OK"
+//	        //HAL_UART_Transmit(&huart1, (uint8_t *)"OK", strlen("OK"), HAL_MAX_DELAY);
+//
+//	        // Start receiving again to wait for the next message
+//	        HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, 1);
+//	}
 
-	        // Start receiving again to wait for the next message
-	        HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, 1);
-	}
 
+//	if (huart->Instance == USART1) {
+//			// Process the received message
+//			//HAL_UART_Receive_IT(&huart1, USART1_RxBuffer, 10);
+//		    if (strcmp((char*)USART1_RxBuffer, "<ENI>") == 0) {
+//		        // If the received message is "<ENI>", send "OK"
+//		        //sendResponse("OK");
+//		    	HAL_UART_Transmit(&huart1, (uint8_t *)"<OK>", strlen("<OK>"), HAL_MAX_DELAY);
+//		    	//HAL_UART_Transmit_IT(&huart1, (uint8_t *)"ok", strlen("ok"));
+//		    	//sendResponse("ok");
+//
+//
+//		    	//HAL_UART_Transmit(&huart1, (uint8_t *)tx_data, strlen(tx_data), HAL_MAX_DELAY);
+//		    } else if (strcmp((char*)USART1_RxBuffer, "<MOV>") == 0){
+//		        // If the received message is something else, send "NOK"
+//		        //sendResponse("NOK");
+//		    	//HAL_UART_Transmit_IT(&huart1, (uint8_t *)"nok", strlen("nok"));
+//		    	HAL_UART_Transmit(&huart1, (uint8_t *)"<NOK>", strlen("<NOK>"), HAL_MAX_DELAY);
+//		    	//sendResponse("nok");
+//
+//
+//				//HAL_UART_Transmit(&huart1, (uint8_t *)tx_data, strlen(tx_data), HAL_MAX_DELAY);
+//
+//
+//		    }
+//
+//		    // Restart reception for the next message
+//		    //HAL_UART_Receive_IT(&huart3, USARTRxBuffer, 5);
+//		    HAL_UART_Receive_IT(&huart1, USART1_RxBuffer, 10);
+//		}
+
+//	if (huart->Instance == USART1) {
+//	        // Ensure the received buffer is null-terminated
+//	        USART1_RxBuffer[10] = '\0';  // Assuming the buffer size is 10
+//
+//	        // Debugging: Print the received message
+//	        printf("Received message: '%s'\n", (char*)USART1_RxBuffer);
+//
+//	        // Process the received message
+//	        if (strcmp((char*)USART1_RxBuffer, "<ENI>") == 0) {
+//	            // If the received message is "<ENI>", send "OK"
+//	            HAL_UART_Transmit(&huart1, (uint8_t *)"<OK>", strlen("<OK>"), HAL_MAX_DELAY);
+//	        } else {
+//	            // If the received message is something else, send "NOK"
+//	            HAL_UART_Transmit(&huart1, (uint8_t *)"<NOK>", strlen("<NOK>"), HAL_MAX_DELAY);
+//	        }
+//
+//	        // Restart reception for the next message
+//	        HAL_UART_Receive_IT(&huart1, USART1_RxBuffer, 10);
+//	    }
+
+
+
+
+	if (huart->Instance == USART1) {
+	        // Ensure the received buffer is null-terminated
+	        USART1_RxBuffer[5] = '\0';
+
+	        // Debugging: Print the received message
+	        printf("Received message: '%s'\n", (char*)USART1_RxBuffer);
+
+	        // Process the received message
+	        if (strcmp((char*)USART1_RxBuffer, "<IST>") == 0) {
+	            HAL_UART_Transmit(&huart1, (uint8_t *)"<OK>", strlen("<OK>"), HAL_MAX_DELAY);
+	        }
+	        else if (strcmp((char*)USART1_RxBuffer, "<MOV>") == 0) {
+	            HAL_UART_Transmit(&huart1, (uint8_t *)"<-0.19,-0.47,1.00,-93.65,-29.40,8.75,-116,-123,-1426,226.68,-133.32>", strlen("<-0.19,-0.47,1.00,-93.65,-29.40,8.75,-116,-123,-1426,226.68,-133.32>"), HAL_MAX_DELAY);
+	            //<Accel_X,Accel_Y,Accel_Z,Gyro_X,Gyro_Y,Gyro_Z,Magn_Xaxis,Magn_Yaxis,Magn_Zaxis,Magn_heading,Magn_compas>
+	        }
+	        else if (strcmp((char*)USART1_RxBuffer, "<ENI>") == 0) {
+	        	HAL_UART_Transmit(&huart1, (uint8_t *)"<27.3,101.2,52.9>", strlen("<27.3,101.2,52.9>"), HAL_MAX_DELAY);
+	        	//<temperature,pressure,humidity>
+	        }
+	        else if (strcmp((char*)USART1_RxBuffer, "<ENE>") == 0) {
+	        	HAL_UART_Transmit(&huart1, (uint8_t *)"<17.8,98.1,77.6>", strlen("<17.8,98.1,77.6>"), HAL_MAX_DELAY);
+	        	//<temperature,pressure,humidity>
+	        }
+	        else if (strcmp((char*)USART1_RxBuffer, "<STR>") == 0) {
+	        	HAL_UART_Transmit(&huart1, (uint8_t *)"<initiated>", strlen("<initiated>"), HAL_MAX_DELAY);
+	        }
+	        else {
+	            HAL_UART_Transmit(&huart1, (uint8_t *)"<NOK>", strlen("<NOK>"), HAL_MAX_DELAY);
+	        }
+
+	        // Clear the buffer for the next reception
+	        ClearBuffer(USART1_RxBuffer, 6);
+
+	        // Restart reception for the next message
+	        HAL_UART_Receive_IT(&huart1, USART1_RxBuffer, 5);
+	    }
 
 
 
